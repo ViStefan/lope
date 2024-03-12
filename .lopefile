@@ -1,0 +1,19 @@
+local PROJ=/home/user/Projects/PROJECT
+
+# path for lope called with no arguments
+lope_default $PROJ
+
+# there are no prefix so subdirectorues
+# will have highest priority
+lope_dir $PROJ/DEV
+
+# add main directory with prefix @
+lope_dir $PROJ @
+
+# add custom aliases for path 
+lope_alias $PROJ/DEV/microservice msrvc MY_MICROSERV
+
+# list of paths to be processed
+# with lowest priority
+local PTH=.:~:/var/log/
+lope_path "$PTH"

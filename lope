@@ -1,0 +1,84 @@
+#!/bin/bash
+
+function lope () {
+
+local LOPE_FILE=${LOPE_FILE:-~/.lopefile}
+local LOPE_PATH=${LOPE_PATH:-}
+local LOPE_UPPERCASE=${LOPE_UPPERCASE:-true}
+local LOPE_PREFIXES=${LOPE_PREFIXES:-"@ + #"}
+local LOPE_DEFAULT=${LOPE_DEFAULT:-} 
+
+local -A p
+local path
+local prefix
+
+    lope_dir () {
+        local PROJ="$1/*/"
+        local proj
+        local name
+        local prefix="$2"
+        for proj in $PROJ; do
+            name=$(basename "$proj") 
+            lope_alias "$proj" "$prefix""$name"
+        done
+    }
+
+    lope_alias () {
+        local path="$1"; shift
+        local alias="$1"; shift
+        while [ -n "$alias" ]; do
+            p[$alias]="$path"
+            [ "$LOPE_UPPERCASE" = true ] && p[${alias^^}]="$path"
+            alias="$1"; shift
+        done
+    }
+
+    lope_default () {
+        LOPE_DEFAULT=${LOPE_DEFAULT:-"$1"}
+    }
+
+    lope_find () {
+        local alias="$1"
+        local prefix="$2"
+        for i in "${!p[@]}"; do
+            case "$i" in
+                $prefix$alias*)
+                    echo "${p[$i]}"
+                    return
+                    ;;
+            esac
+        done
+    }
+
+    lope_path () {
+        LOPE_PATH=${LOPE_PATH:-$1}
+        local path
+        local ifs=$IFS
+        IFS=':'
+        for path in $LOPE_PATH; do
+            lope_dir "$path" ${LOPE_PREFIXES##*\ }
+        done
+        IFS=$ifs
+    }
+
+
+[ -f "$LOPE_FILE" ] && . "$LOPE_FILE"
+
+[ -z "$1" ] && path="$LOPE_DEFAULT"
+
+[ -z "$path" ] && path=$(lope_find "$1")
+for prefix in $LOPE_PREFIXES; do
+    [ -z "$path" ] && path=$(lope_find "$1" "$prefix")
+done
+
+unset -f lope_dir
+unset -f lope_alias
+unset -f lope_default
+unset -f lope_find
+
+[ -n "$path" ] && cd "$path" && return 0
+
+echo not found >&2 && return 126
+
+}
+
