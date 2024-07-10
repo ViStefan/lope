@@ -61,14 +61,13 @@ local prefix
         IFS=$ifs
     }
 
-
 [ -f "$LOPE_FILE" ] && . "$LOPE_FILE"
 
 [ -z "$1" ] && path="$LOPE_DEFAULT"
 
-[ -z "$path" ] && path=$(lope_find "$1")
+[ -z "$path" ] && path=$(lope_find "${1%/}")
 for prefix in $LOPE_PREFIXES; do
-    [ -z "$path" ] && path=$(lope_find "$1" "$prefix")
+    [ -z "$path" ] && path=$(lope_find "${1%/}" "$prefix")
 done
 
 unset -f lope_dir
