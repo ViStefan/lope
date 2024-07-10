@@ -74,6 +74,7 @@ unset -f lope_dir
 unset -f lope_alias
 unset -f lope_default
 unset -f lope_find
+unset -f lope_path
 
 [ -n "$path" ] && cd "$path" && return 0
 
