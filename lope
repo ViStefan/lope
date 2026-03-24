@@ -27,20 +27,20 @@ local prefix
 
     lope_alias () {
         local path="$1"; shift
-        local alias="$1"; shift
+        local alias;
         # TODO: avoid using uppercase aliases? Just lowecase input is enough
-        if [ -n "$ZSH_VERSION" ]; then
-            local alias_upper="${(U)alias}"
-        else
-            local alias_upper="${alias^^}"
-        fi
-        while [ -n "$alias" ]; do
+        while [ $# -gt 0 ]; do
+            alias="$1"
+            shift
             p[$alias]="$path"
-            [ "$LOPE_UPPERCASE" = true ] && p[$alias_upper]="$path"
-            alias="$1";
-            if [ $# -gt 0 ]; then
-                shift
+
+            if [ -n "$ZSH_VERSION" ]; then
+                local alias_upper="${(U)alias}"
+            else
+                local alias_upper="${alias^^}"
             fi
+
+            [ "$LOPE_UPPERCASE" = true ] && p[$alias_upper]="$path"
         done
     }
 
