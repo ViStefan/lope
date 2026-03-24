@@ -1,5 +1,3 @@
-#!/bin/bash
-
 function lope () {
 
 local LOPE_FILE=${LOPE_FILE:-~/.lopefile}
@@ -13,12 +11,12 @@ local path
 local prefix
 
     lope_dir () {
-        local PROJ="$1/*/"
         local proj
         local name
         local prefix="$2"
-        for proj in $PROJ; do
-            name=$(basename "$proj") 
+        for proj in "$1"/*/; do
+            # mysteriously zsh didn't want resolve 'basename' from path here
+            name=$(/bin/basename "$proj")
             lope_alias "$proj" "$prefix""$name"
         done
     }
@@ -26,10 +24,18 @@ local prefix
     lope_alias () {
         local path="$1"; shift
         local alias="$1"; shift
+        if [ -n "$ZSH_VERSION" ]; then
+            local alias_upper="${(U)alias}"
+        else
+            local alias_upper="${alias^^}"
+        fi
         while [ -n "$alias" ]; do
             p[$alias]="$path"
-            [ "$LOPE_UPPERCASE" = true ] && p[${alias^^}]="$path"
-            alias="$1"; shift
+            [ "$LOPE_UPPERCASE" = true ] && p[$alias_upper]="$path"
+            alias="$1";
+            if [ $# -gt 0 ]; then
+                shift
+            fi
         done
     }
 
@@ -40,7 +46,12 @@ local prefix
     lope_find () {
         local alias="$1"
         local prefix="$2"
-        for i in "${!p[@]}"; do
+        if [ -n "$ZSH_VERSION" ]; then
+            local keys=(${(@k)p})
+        else
+            local keys=("${!p[@]}")
+        fi
+        for i in "${keys[@]}"; do
             case "$i" in
                 $prefix$alias*)
                     echo "${p[$i]}"
@@ -65,9 +76,9 @@ local prefix
 
 [ -z "$1" ] && path="$LOPE_DEFAULT"
 
-[ -z "$path" ] && path=$(lope_find "${1%/}")
+[ -z "$path" ] && path="$(lope_find "${1%/}")"
 for prefix in $LOPE_PREFIXES; do
-    [ -z "$path" ] && path=$(lope_find "${1%/}" "$prefix")
+    [ -z "$path" ] && path="$(lope_find "${1%/}" "$prefix")"
 done
 
 unset -f lope_dir

@@ -1,0 +1,4 @@
+local dir=/lope_test/test/lopedir
+lope_default $dir
+lope_dir $dir
+lope_alias /dev dv

@@ -1,0 +1,28 @@
+#!/bin/sh
+
+if [ "$1" = "--prefix" ]; then
+    PREFIX=$2
+else
+    PREFIX=~
+fi
+echo setting prefix to $PREFIX
+
+printf "checking for docker... "
+if command -v docker 2>&1 >/dev/null; then
+    DOCKER=docker
+elif command -v podman 2>&1 >/dev/null; then
+    DOCKER=podman
+else
+    DOCKER=no
+fi
+
+echo $DOCKER
+
+if [ $DOCKER = "no" ]; then
+    echo Error!
+    exit 1
+fi
+
+echo creating Makefile.in
+echo "DOCKER = $DOCKER" > Makefile.in
+echo "PREFIX = $PREFIX" >> Makefile.in
