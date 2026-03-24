@@ -1,4 +1,5 @@
 local dir=/lope_test/test/lopedir
+# TODO: remove lope prefixes?
 lope_default $dir
 lope_dir $dir
 lope_alias /dev dv

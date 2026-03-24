@@ -3,7 +3,11 @@ function lope () {
 local LOPE_FILE=${LOPE_FILE:-~/.lopefile}
 local LOPE_PATH=${LOPE_PATH:-}
 local LOPE_UPPERCASE=${LOPE_UPPERCASE:-true}
-local LOPE_PREFIXES=${LOPE_PREFIXES:-"@ + #"}
+if [ -n "$ZSH_VERSION" ]; then
+    local LOPE_PREFIXES=(${=${LOPE_PREFIXES:-"@ + #"}})
+else
+    local LOPE_PREFIXES=${LOPE_PREFIXES:-"@ + #"}
+fi
 local LOPE_DEFAULT=${LOPE_DEFAULT:-} 
 
 local -A p
@@ -24,6 +28,7 @@ local prefix
     lope_alias () {
         local path="$1"; shift
         local alias="$1"; shift
+        # TODO: avoid using uppercase aliases? Just lowecase input is enough
         if [ -n "$ZSH_VERSION" ]; then
             local alias_upper="${(U)alias}"
         else
@@ -77,7 +82,7 @@ local prefix
 [ -z "$1" ] && path="$LOPE_DEFAULT"
 
 [ -z "$path" ] && path="$(lope_find "${1%/}")"
-for prefix in $LOPE_PREFIXES; do
+for prefix in ${LOPE_PREFIXES[@]}; do
     [ -z "$path" ] && path="$(lope_find "${1%/}" "$prefix")"
 done
 
