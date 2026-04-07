@@ -7,3 +7,9 @@
 5. drop-in-replacement of current
 6. inotify watchdog
 6. daemonization with socket and pipes
+
+
+HASH    *array of Lists in opaque struct*
+LIST    *struct value/next*
+PAIR    *key/value*
+
