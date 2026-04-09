@@ -11,9 +11,9 @@ typedef enum
     FAST
 } DEPTH_E;
 
-void List_add(List, void *);
-void *List_get(List, Filter, void *);
-void List_remove(List, void *);
-void List_free(List, DEPTH_E);
+void List_add(List *, void *);
+void *List_get(List *, Filter, void *);
+void List_remove(List *, void *);
+void List_free(List *, DEPTH_E);
 
 #endif /* ifndef LIST_H */
