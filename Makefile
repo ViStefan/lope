@@ -13,6 +13,11 @@ install:
 Makefile.in:
 	./configure
 
+bin/lope: CPPFLAGS += -I./src
+bin/lope: CFLAGS += -Wall -Wextra -pedantic -Werror -std=c99 -fsanitize=address,undefined,leak -g3 -O0
+bin/lope: $(wildcard src/*.c)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $^ -o $@
+
 clean:
 	rm lope_test_image.lock || :
 	rm Makefile.in || :

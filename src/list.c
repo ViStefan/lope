@@ -9,7 +9,7 @@ struct List
 
 void List_add(List *l, void *i)
 {
-    if (!l)
+    if (!*l)
     {
         *l = malloc(sizeof(struct List));
         (*l)->next = NULL;
@@ -31,7 +31,7 @@ void *List_get(List *l, Filter f, void *i)
 
     while(c)
     {
-        if (f(i, c)) return c->v;
+        if (f(i, c->v)) return c->v;
         c = c->next;
     }
 

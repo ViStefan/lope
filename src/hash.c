@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "hash.h"
 #include "list.h"
@@ -26,10 +27,10 @@ int hash(KEY_T k)
 
 void Hash_add(Hash *h, KEY_T k, void *i)
 {
-    if (!h) /* initialize list if NULL */
+    if (!*h) /* initialize list if NULL */
     {
         *h = (Hash)calloc(sizeof(List *) * HASH_SIZE + sizeof(Hash), 1);
-        (*h)->h = (List *)(&h + 1);
+        (*h)->h = (List *)((*h) + 1);
     }
     Pair p = malloc(sizeof(struct Pair));
     p->k = k;
@@ -45,7 +46,7 @@ bool by_key(void *k, void *i)
 
 void *Hash_get(Hash *h, KEY_T k)
 {
-    return List_get(&(*h)->h[hash(k)], &by_key, k);
+    return ((Pair)(List_get(&(*h)->h[hash(k)], &by_key, k)))->v;
 }
 
 void Hash_remove(Hash *h, KEY_T k)
@@ -56,8 +57,12 @@ void Hash_remove(Hash *h, KEY_T k)
 void Hash_free(Hash *h)
 {
     for (int i = 0; i < HASH_SIZE; i++)
+    {
         if ((*h)->h[i])
+        {
             /* deep to free Pairs in List nodes */
             List_free(&(*h)->h[i], DEEP);
-    free(h);
+        }
+    }
+    free(*h);
 }
