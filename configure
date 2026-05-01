@@ -1,28 +1,62 @@
 #!/bin/sh
 
-if [ "$1" = "--prefix" ]; then
-    PREFIX=$2
+CHECK=check
+
+while [ -n "$1" ]; do
+    case $1 in
+        --prefix)
+            PREFIX=$2
+            shift
+            ;;
+        --no-docker)
+            DOCKER=no
+            ;;
+        --no-check)
+            CHECK=no
+            ;;
+    esac
+    shift
+done
+
+PREFIX=${PREFIX:-~}
+echo $PREFIX
+echo setting prefix to "$PREFIX"
+
+if [ -z "$DOCKER" ]; then
+    printf "checking for docker... "
+    if command -v docker 2>&1 >/dev/null; then
+        DOCKER=docker
+    elif command -v podman 2>&1 >/dev/null; then
+        DOCKER=podman
+    else
+        DOCKER=no
+    fi
+
+    echo $DOCKER
 else
-    PREFIX=~
+    echo "using containers... $DOCKER"
 fi
-echo setting prefix to $PREFIX
 
-printf "checking for docker... "
-if command -v docker 2>&1 >/dev/null; then
-    DOCKER=docker
-elif command -v podman 2>&1 >/dev/null; then
-    DOCKER=podman
+if [ "$DOCKER" = no ]; then
+    echo "no containers: tests disabled"
+    DOCKER=":"
+fi
+
+if ! [ "$CHECK" = no ]; then
+    if pkg-config --exists check; then
+        CHECK=check
+        __CFLAGS="${__CFLAGS} -lcheck"
+    else
+        CHECK=no
+    fi
+    echo "checking for libcheck... $CHECK"
 else
-    DOCKER=no
-fi
-
-echo $DOCKER
-
-if [ $DOCKER = "no" ]; then
-    echo Error!
-    exit 1
+    echo "no check: tests disabled"
 fi
 
 echo creating Makefile.in
 echo "DOCKER = $DOCKER" > Makefile.in
 echo "PREFIX = $PREFIX" >> Makefile.in
+if [ -n "$__CFLAGS" ]; then
+    echo "CFLAGS += \"$__CFLAGS\"" >> Makefile.in
+fi

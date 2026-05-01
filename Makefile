@@ -1,10 +1,12 @@
 include Makefile.in
 
+all: bin/lope check
+
 check: lope_test_image.lock
-	${DOCKER} run --rm -v ./:/lope_test:ro lope_test_image
+	@${DOCKER} run --rm -v ./:/lope_test:ro lope_test_image
 
 lope_test_image.lock:
-	${DOCKER} build -f ./test/Dockerfile -t lope_test_image .
+	@${DOCKER} build -f ./test/Dockerfile -t lope_test_image .
 	touch lope_test_image.lock
 
 install:
@@ -21,3 +23,4 @@ bin/lope: $(wildcard src/*.c)
 clean:
 	rm lope_test_image.lock || :
 	rm Makefile.in || :
+	@$(DOCKER) rmi --ignore lope_test_image:latest
